@@ -1,0 +1,5 @@
+*
+!target/
+!target/traffic-platform-0.1.0-SNAPSHOT.jar
+!deploy/
+!deploy/Dockerfile

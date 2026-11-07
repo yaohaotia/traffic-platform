@@ -1,0 +1,16 @@
+{
+  "stage": "P2",
+  "recordedAt": "2026-11-03T14:26:55.1822000+08:00",
+  "command": "tools/build.ps1 -Goals clean,verify",
+  "totals": {
+    "failures": 0,
+    "skipped": 0,
+    "tests": 29,
+    "errors": 0
+  },
+  "suites": [
+    "TEST-com.yao.traffic.FoundationTest.xml",
+    "TEST-com.yao.traffic.SecurityIntegrationTest.xml"
+  ],
+  "externalServices": "See execution record; this script does not turn H2/mock results into real-service evidence."
+}

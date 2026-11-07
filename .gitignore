@@ -1,0 +1,36 @@
+# Local secrets and generated credentials
+.env
+.env.*
+!.env.example
+!.env.traffic
+**/.generated/
+*.pem
+*.key
+
+# Dependencies, build output, runtime data and editor state
+node_modules/
+target/
+.cache/
+dist/
+dist-traffic/
+.idea/
+.vscode/
+__pycache__/
+*.py[cod]
+*.class
+*.jar
+*.log
+*.zip
+.DS_Store
+/traffic-platform/data/
+/traffic-platform/deploy/web/
+
+# Uploaded evidence, datasets and private migration exports
+/PatchCraft（算法）/data/test/
+/PatchCraft（算法）/uploads/
+/PatchCraft（算法）/api_temp/
+/PatchCraft（算法）/results/
+/docs/tmp/
+/docs/migration/private/
+/docs/test-reports/*
+!/docs/test-reports/*-summary.json

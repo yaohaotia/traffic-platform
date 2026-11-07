@@ -1,0 +1,14 @@
+{
+  "stage": "P7",
+  "status": "PASSED",
+  "recordedAt": "2026-11-04T16:34:20.6784118+08:00",
+  "deployment": "traffic-platform-deploy",
+  "reverseProxy": "Nginx actual HTTP",
+  "readiness": "UP",
+  "anonymousProtectedHttpStatus": 401,
+  "registeredExecutors": 1,
+  "successfulMaintenanceKinds": 5,
+  "successfulRealAdminCallbackKinds": 5,
+  "applicationRestart": "PASSED",
+  "jarSha256": "54F77B79280EFF177CC08EA4F77397364291193C84CAB706859799D240B6EAD7"
+}

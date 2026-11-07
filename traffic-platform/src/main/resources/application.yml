@@ -1,0 +1,95 @@
+spring:
+  application:
+    name: traffic-platform
+  profiles:
+    default: local
+  rabbitmq:
+    publisher-confirm-type: correlated
+    publisher-returns: true
+    template:
+      mandatory: true
+    listener:
+      simple:
+        prefetch: 1
+        default-requeue-rejected: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    clean-disabled: true
+    validate-on-migrate: true
+  mvc:
+    problemdetails:
+      enabled: false
+  servlet:
+    multipart:
+      max-file-size: 6MB
+      max-request-size: 7MB
+
+server:
+  port: ${SERVER_PORT:8090}
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      show-details: never
+      probes:
+        enabled: true
+  info:
+    env:
+      enabled: false
+
+logging:
+  pattern:
+    level: "%5p [requestId=%X{requestId:-}]"
+
+traffic:
+  security:
+    jwt-secret: ${TRAFFIC_JWT_SECRET}
+    issuer: traffic-platform
+    audience: traffic-web
+  bootstrap:
+    enabled: false
+  messaging:
+    enabled: false
+    namespace: ${TRAFFIC_MESSAGING_NAMESPACE:traffic}
+    polling-enabled: true
+    listener-enabled: true
+    confirm-timeout-ms: 5000
+    outbox-lease-seconds: 30
+    max-publish-attempts: 10
+  detection:
+    model-url: ${TRAFFIC_MODEL_URL:http://127.0.0.1:5001/api/v1/detect}
+    http-timeout-ms: 10000
+    lease-seconds: 30
+    max-attempts: 3
+    retry-base-ms: 1000
+    pending-resignal-seconds: 60
+  review:
+    listener-enabled: false
+    polling-enabled: false
+    lease-seconds: 1800
+    max-transfers: 3
+    dependency-backoff-ms: 100
+  reward:
+    enabled: false
+    listener-enabled: false
+    polling-enabled: false
+  operations:
+    enabled: false
+  scheduling:
+    mode: ${TRAFFIC_SCHEDULING_MODE:local}
+  storage:
+    provider: ${TRAFFIC_STORAGE_PROVIDER:local}
+    local-root: ${TRAFFIC_STORAGE_LOCAL_ROOT:./data/evidence}
+  report:
+    rate-limit-per-minute: ${TRAFFIC_REPORT_RATE_LIMIT:20}
+    max-image-bytes: 5242880
+    max-image-pixels: 20000000

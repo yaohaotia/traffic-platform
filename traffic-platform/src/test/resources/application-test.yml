@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:traffic_p1;MODE=MySQL;DB_CLOSE_DELAY=-1;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  flyway:
+    clean-disabled: true
+logging:
+  level:
+    com.yao.traffic: INFO
+traffic:
+  messaging:
+    enabled: false
+    polling-enabled: false
+    listener-enabled: false
+  security:
+    jwt-secret: traffic-foundation-only-secret-at-least-32-bytes-2026
+    issuer: traffic-platform
+    audience: traffic-web
+management:
+  health:
+    redis:
+      enabled: false
+    rabbit:
+      enabled: false

@@ -1,0 +1,23 @@
+{
+  "stage": "P8",
+  "recordedAt": "2026-11-04T17:17:27.5564949+08:00",
+  "command": "tools/build.ps1 -Goals clean,verify",
+  "totals": {
+    "errors": 0,
+    "tests": 138,
+    "failures": 0,
+    "skipped": 0
+  },
+  "pythonProtocolTests": 25,
+  "suites": [
+    "TEST-com.yao.traffic.EndToEndTest.xml",
+    "TEST-com.yao.traffic.FoundationTest.xml",
+    "TEST-com.yao.traffic.OperationsIntegrationTest.xml",
+    "TEST-com.yao.traffic.ReliableDetectionIntegrationTest.xml",
+    "TEST-com.yao.traffic.ReportIntegrationTest.xml",
+    "TEST-com.yao.traffic.ReviewIntegrationTest.xml",
+    "TEST-com.yao.traffic.RewardIntegrationTest.xml",
+    "TEST-com.yao.traffic.SecurityIntegrationTest.xml"
+  ],
+  "externalServices": "See execution record; this script does not turn H2/mock results into real-service evidence."
+}

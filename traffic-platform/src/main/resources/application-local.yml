@@ -1,0 +1,41 @@
+# No embedded fallback: a missing MySQL configuration must fail startup.
+spring:
+  rabbitmq:
+    host: ${TRAFFIC_RABBIT_HOST:127.0.0.1}
+    port: ${TRAFFIC_RABBIT_PORT:25672}
+    username: ${TRAFFIC_RABBIT_USERNAME:traffic_app}
+    password: ${TRAFFIC_RABBIT_PASSWORD:Traffic_mq_local_only_2026}
+    connection-timeout: 2s
+  data:
+    redis:
+      host: ${TRAFFIC_REDIS_HOST:127.0.0.1}
+      port: ${TRAFFIC_REDIS_PORT:26379}
+      password: ${TRAFFIC_REDIS_PASSWORD:}
+      connect-timeout: 2s
+      timeout: 2s
+  datasource:
+    url: ${TRAFFIC_DB_URL:jdbc:mysql://127.0.0.1:23306/traffic_platform?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC}
+    username: ${TRAFFIC_DB_USERNAME:traffic_app}
+    password: ${TRAFFIC_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 5000
+traffic:
+  messaging:
+    enabled: true
+  review:
+    listener-enabled: true
+    polling-enabled: true
+  reward:
+    enabled: true
+    listener-enabled: true
+    polling-enabled: true
+  operations:
+    enabled: true
+management:
+  endpoint:
+    health:
+      group:
+        readiness:
+          include: readinessState,db,redis,rabbit,evidenceStorage

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0">
+  <mirrors>
+    <mirror><id>aliyun-central</id><mirrorOf>central</mirrorOf><url>https://maven.aliyun.com/repository/public</url></mirror>
+  </mirrors>
+  <profiles>
+    <profile>
+      <id>local-cache</id>
+      <repositories>
+        <repository><id>existing-cache</id><url>file:///D:/Service/maven</url><releases><checksumPolicy>ignore</checksumPolicy></releases><snapshots><enabled>false</enabled></snapshots></repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository><id>existing-plugin-cache</id><url>file:///D:/Service/maven</url><releases><checksumPolicy>ignore</checksumPolicy></releases><snapshots><enabled>false</enabled></snapshots></pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+  <activeProfiles><activeProfile>local-cache</activeProfile></activeProfiles>
+</settings>

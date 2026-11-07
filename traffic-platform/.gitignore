@@ -1,0 +1,8 @@
+/target/
+/.cache/
+/.env
+/*.log
+/data/
+/deploy/.env
+/deploy/.generated/
+/deploy/web/

@@ -1,0 +1,23 @@
+{
+  "status": "PASSED",
+  "recordedAt": "2026-11-04T12:44:43.315Z",
+  "browser": "Installed Microsoft Edge, headless",
+  "baseUrl": "http://127.0.0.1:28090",
+  "checks": [
+    "Citizen menu and server-side administration isolation",
+    "Browser evidence upload and submission reached actual RPTC model",
+    "Claimed reviewer can view protected image and escalate without auto-award",
+    "Independent review reserved budget and MQ credited reward once",
+    "Browser withdrawal freeze and independent simulated settlement reconciled",
+    "Recipient notification and read state",
+    "Expired access recovers using one rotating refresh request",
+    "Actual legacy archive preview/import matched 11 users and 44 reports",
+    "Mobile navigation retains logout"
+  ],
+  "runtimePageErrors": 0,
+  "reportId": 2,
+  "campaignId": 4,
+  "legacyUserCount": 11,
+  "legacyReportCount": 44,
+  "frontendIndexSha256": "285e75477d524be9a02b5ee1f9b28a4a5fcea0cf552844e6566b8faffa58813c"
+}

@@ -1,0 +1,47 @@
+spring:
+  rabbitmq:
+    host: ${TRAFFIC_RABBIT_HOST}
+    port: ${TRAFFIC_RABBIT_PORT:5672}
+    username: ${TRAFFIC_RABBIT_USERNAME}
+    password: ${TRAFFIC_RABBIT_PASSWORD}
+    connection-timeout: 2s
+  data:
+    redis:
+      host: ${TRAFFIC_REDIS_HOST}
+      port: ${TRAFFIC_REDIS_PORT:6379}
+      password: ${TRAFFIC_REDIS_PASSWORD}
+      connect-timeout: 2s
+      timeout: 2s
+  datasource:
+    url: ${TRAFFIC_DB_URL}
+    username: ${TRAFFIC_DB_USERNAME}
+    password: ${TRAFFIC_DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: ${TRAFFIC_DB_POOL_SIZE:10}
+      connection-timeout: 5000
+traffic:
+  messaging:
+    enabled: true
+  review:
+    listener-enabled: true
+    polling-enabled: true
+  reward:
+    enabled: true
+    listener-enabled: true
+    polling-enabled: true
+  operations:
+    enabled: true
+  scheduling:
+    mode: ${TRAFFIC_SCHEDULING_MODE:xxl}
+    admin-addresses: ${TRAFFIC_JOB_ADMIN_ADDRESSES}
+    access-token: ${TRAFFIC_JOB_ACCESS_TOKEN}
+    executor-port: ${TRAFFIC_JOB_EXECUTOR_PORT:29999}
+    executor-ip: ${TRAFFIC_JOB_EXECUTOR_IP:}
+    executor-address: ${TRAFFIC_JOB_EXECUTOR_ADDRESS:}
+management:
+  endpoint:
+    health:
+      group:
+        readiness:
+          include: readinessState,db,redis,rabbit,evidenceStorage

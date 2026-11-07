@@ -1,0 +1,33 @@
+# Dedicated loopback-only test containers. These are synthetic test credentials.
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:23306/traffic_platform_it?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: traffic_app
+    password: Traffic_it_2026
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 26379
+      connect-timeout: 2s
+      timeout: 2s
+  flyway:
+    clean-disabled: true
+  rabbitmq:
+    host: 127.0.0.1
+    port: 25672
+    username: traffic_app
+    password: Traffic_mq_local_only_2026
+    connection-timeout: 2s
+traffic:
+  messaging:
+    enabled: false
+    polling-enabled: false
+    listener-enabled: false
+  security:
+    jwt-secret: traffic-integration-only-secret-at-least-32-bytes-2026
+    issuer: traffic-platform
+    audience: traffic-web
+logging:
+  level:
+    com.yao.traffic: INFO
