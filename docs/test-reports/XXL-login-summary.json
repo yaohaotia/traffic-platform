@@ -1,0 +1,9 @@
+{
+  "status": "PASSED",
+  "recordedAt": "2026-11-11T22:48:31.8548764+08:00",
+  "username": "traffic.admin",
+  "actualBrowserPasswordMaximum": 20,
+  "configuredPasswordLength": 20,
+  "loginHttpCode": 200,
+  "authenticatedDashboardHttpStatus": 200
+}

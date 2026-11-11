@@ -16,6 +16,7 @@ try {
     if($info.version -ne '0.1.0-SNAPSHOT'){throw 'Reverse-proxied version was unexpected.'}
     $anonymous=Invoke-WebRequest -Uri 'http://127.0.0.1:28090/api/v1/wallet' -SkipHttpErrorCheck -TimeoutSec 15
     if([int]$anonymous.StatusCode -ne 401){throw 'The reverse proxy did not preserve authentication requirements.'}
+    & "$PSScriptRoot/test-xxl-login.ps1"
     $maintenanceJobs=0;$actualCallbacks=0;$registered=0
     for($attempt=0;$attempt -lt 25;$attempt++){
         $counts=@(& docker compose exec -T mysql sh -c 'MYSQL_PWD="$MYSQL_PASSWORD" mysql -utraffic_app -N -B -e "SELECT COUNT(*) FROM traffic_platform.maintenance_checkpoint WHERE last_success IS NOT NULL; SELECT COUNT(DISTINCT executor_handler) FROM xxl_job.xxl_job_log WHERE job_group=10 AND handle_code=200; SELECT COUNT(*) FROM xxl_job.xxl_job_registry WHERE registry_key=''traffic-platform'';"')

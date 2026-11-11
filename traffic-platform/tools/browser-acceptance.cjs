@@ -33,7 +33,7 @@ function rowWith(value) { return page.locator('.el-table__row').filter({ has: pa
   const campaign = await api('manager', '/campaigns', 'POST', { title, regionCode: 'NORTH', startsAt: new Date(Date.now() - 3600000).toISOString(), endsAt: new Date(Date.now() + 86400000).toISOString(), rewardAmount: 3.50, budgetAmount: 1000.00 });
   await api('manager', '/campaigns/' + campaign.id + '/publish', 'POST', {});
   const before = await api('user', '/wallet');
-  await login('user'); assert.equal(await page.getByRole('button', { name: '账户与迁移', exact: true }).count(), 0);
+  await login('user'); assert.equal(await page.getByRole('button', { name: '账户管理', exact: true }).count(), 0);
   const forbidden = await page.evaluate(async () => { const session = JSON.parse(sessionStorage.getItem('traffic-platform-session-v1')); return (await fetch('/api/v1/identity/users', { headers: { Authorization: 'Bearer ' + session.accessToken } })).status; });
   assert.equal(forbidden, 403); checks.push('Citizen menu and server-side administration isolation');
   await rowWith(title).getByRole('button', { name: '提交线索' }).click();
@@ -53,7 +53,7 @@ function rowWith(value) { return page.locator('.el-table__row').filter({ has: pa
     await dialog.locator('textarea').fill('初审完成，交由其他审核员独立复核。'); await dialog.getByRole('button', { name: '提交独立复核' }).click(); await dialog.waitFor({ state: 'hidden' });
     await logout(); checks.push('Claimed reviewer can view protected image and escalate without auto-award');
   }
-  await login('rechecker'); await menu('审核工作台'); await rowWith(report.id).getByRole('button', { name: '领取处理' }).click();
+  await login('rechecker'); await menu('我的线索'); assert.equal(await rowWith(report.id).getByRole('button', { name: '查看证据', exact: true }).count(), 0); checks.push('Reviewer report list directs protected evidence access to claimed workbench'); await menu('审核工作台'); await rowWith(report.id).getByRole('button', { name: '领取处理' }).click();
   const review = page.getByRole('dialog', { name: '人工审核', exact: true }); await review.locator('textarea').fill('独立复核确认线索符合已公布的征集规则。'); await review.getByRole('button', { name: '审核通过', exact: true }).click(); await review.waitFor({ state: 'hidden' });
   await waitFor(async () => (await api('user', '/rewards')).items.some(item => item.reportId === report.id && item.state === 'CREDITED'));
   await logout(); checks.push('Independent review reserved budget and MQ credited reward once');
@@ -73,20 +73,18 @@ function rowWith(value) { return page.locator('.el-table__row').filter({ has: pa
   let refreshes = 0; const listener = request => { if (request.url().endsWith('/api/v1/auth/refresh')) refreshes++; }; page.on('request', listener);
   await page.evaluate(() => { const key = 'traffic-platform-session-v1'; const session = JSON.parse(sessionStorage.getItem(key)); session.accessToken = 'expired-test-access'; sessionStorage.setItem(key, JSON.stringify(session)); });
   await page.reload(); await page.locator('.sidebar').waitFor(); assert.equal(refreshes, 1); page.off('request', listener); checks.push('Expired access recovers using one rotating refresh request');
-  await logout(); await login('manager'); await menu('账户与迁移');
-  const mapping = JSON.parse(fs.readFileSync(path.join(project, 'deploy/.generated/legacy-mapping.json'), 'utf8').replace(/^\uFEFF/, ''));
-  await page.getByLabel('历史档案文件', { exact: true }).setInputFiles(mapping.archive);
-  await page.getByRole('button', { name: '执行预演', exact: true }).click(); await page.getByText('预演可导入', { exact: false }).waitFor();
-  await page.getByPlaceholder('账号映射，例如 {"旧账号编号": 新账号编号}').fill(JSON.stringify(mapping.userMappings));
-  await page.getByPlaceholder('迁移核对说明').fill('已核对只读导出的全部账号和线索数量，保留停用状态及原始审核状态。');
-  const imported = page.waitForResponse(response => response.url().endsWith('/api/v1/migration/import') && response.status() === 200);
-  await page.getByRole('button', { name: '确认映射并导入档案', exact: true }).click(); await page.locator('.el-message-box button.el-button--primary').click();
-  const batch = await (await imported).json(); assert.equal(batch.userCount, mapping.expectedUsers); assert.equal(batch.reportCount, mapping.expectedReports);
-  checks.push('Actual legacy archive preview/import matched ' + batch.userCount + ' users and ' + batch.reportCount + ' reports');
-  await page.screenshot({ path: path.join(reports, 'P8-browser-migration.png'), fullPage: false });
+  await logout(); await login('manager'); await menu('账户管理');
+  assert.equal(await page.getByText('历史档案迁移', { exact: true }).count(), 0);
+  for (const route of ['/migration/preview', '/migration/import', '/legacy-reports']) {
+    const response = await fetch(base + '/api/v1' + route, { method: route === '/legacy-reports' ? 'GET' : 'POST', headers: { Authorization: 'Bearer ' + tokens.get('manager'), 'Content-Type': 'application/json' }, body: route === '/legacy-reports' ? undefined : '{}' });
+    assert.equal(response.status, 404);
+  }
+  await menu('我的线索');
+  assert.equal(await page.getByText('旧版历史档案', { exact: true }).count(), 0);
+  checks.push('Standalone account/report pages omit migration and retired endpoints return 404');
   await page.setViewportSize({ width: 390, height: 844 }); await menu('专项征集'); await page.waitForTimeout(3500); await page.screenshot({ path: path.join(reports, 'P8-browser-mobile.png'), fullPage: false });
   assert.ok(await page.getByRole('button', { name: '退出登录', exact: true }).isVisible()); checks.push('Mobile navigation retains logout');
   assert.deepEqual(errors, []); await logout();
-  fs.writeFileSync(path.join(reports, 'P8-browser-summary.json'), JSON.stringify({ status: 'PASSED', recordedAt: new Date().toISOString(), browser: 'Installed Microsoft Edge, headless', baseUrl: base, checks, runtimePageErrors: errors.length, reportId: report.id, campaignId: campaign.id, legacyUserCount: batch.userCount, legacyReportCount: batch.reportCount, frontendIndexSha256: crypto.createHash('sha256').update(fs.readFileSync(path.join(project, 'deploy/web/index.html'))).digest('hex') }, null, 2));
-  console.log('Browser acceptance passed: ' + checks.length + ' checks; real model, independent review, funds, refresh and archive import.');
+  fs.writeFileSync(path.join(reports, 'P8-browser-summary.json'), JSON.stringify({ status: 'PASSED', recordedAt: new Date().toISOString(), browser: 'Installed Microsoft Edge, headless', baseUrl: base, checks, runtimePageErrors: errors.length, reportId: report.id, campaignId: campaign.id, legacyEndpointsRemoved: true, frontendIndexSha256: crypto.createHash('sha256').update(fs.readFileSync(path.join(project, 'deploy/web/index.html'))).digest('hex') }, null, 2));
+  console.log('Browser acceptance passed: ' + checks.length + ' checks; real model, independent review, funds, refresh and standalone pages.');
 })().catch(async error => { if (page) await page.screenshot({ path: path.join(reports, 'P8-browser-failure.png'), fullPage: false }).catch(() => {}); fs.writeFileSync(path.join(reports, 'P8-browser-summary.json'), JSON.stringify({ status: 'FAILED', checks, error: redact(error.message) }, null, 2)); console.error(redact(error.message)); process.exitCode = 1; }).finally(async () => { if (browser) await browser.close(); });

@@ -1,0 +1,12 @@
+{
+  "status": "PASSED",
+  "recordedAt": "2026-11-11T11:04:09.698Z",
+  "browser": "Microsoft Edge",
+  "username": "traffic.admin",
+  "passwordLength": 20,
+  "actualBrowserPasswordMaximum": 20,
+  "loginHttpStatus": 200,
+  "loginBusinessCode": 200,
+  "dashboardUrl": "http://127.0.0.1:29090/#/dashboard",
+  "protectedNavigationPresent": true
+}

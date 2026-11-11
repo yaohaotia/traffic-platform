@@ -117,26 +117,6 @@ class EndToEndTest {
         Reply list=api("GET","/identity/users",null,"p8.manager",null);ok(list);assertThat(list.body()).doesNotContain(PASSWORD,"password_hash","$2");
         assertThat(text("SELECT password_hash FROM identity_user WHERE id=?",id)).startsWith("$2");assertThat(count("SELECT COUNT(*) FROM identity_audit WHERE target_id=?",id)).isEqualTo(2);
     }
-    @Test void legacyPreviewAndExplicitImportPreserveCountsAndDoNotCreateMoney()throws Exception{
-        Map<String,Object> bundle=bundle(false);Reply preview=api("POST","/migration/preview",bundle,"p8.manager",null);ok(preview);assertThat(preview.json().get("canImport")).isEqualTo(true);
-        assertThat(num(preview.json().get("reportCount"))).isEqualTo(5);assertThat(count("SELECT COUNT(*) FROM legacy_report_archive")).isZero();
-        var input=Map.of("bundle",bundle,"userMappings",Map.of("old-user",12101),"expectedSha256",preview.json().get("sourceSha256"),"reason","Counts and user mapping reviewed");
-        Reply imported=api("POST","/migration/import",input,"p8.manager",null);ok(imported);ok(api("POST","/migration/import",input,"p8.manager",null));
-        assertThat(count("SELECT COUNT(*) FROM legacy_report_archive")).isEqualTo(5);assertThat(count("SELECT COUNT(*) FROM legacy_import_batch")).isEqualTo(1);
-        assertThat(text("SELECT mapped_state FROM legacy_report_archive WHERE legacy_id='old-report-1'")).isEqualTo("LEGACY_RECHECK_REQUIRED");
-        assertThat(((List<?>)api("GET","/legacy-reports",null,"p8.owner",null).json().get("items"))).hasSize(5);
-        assertThat(((List<?>)api("GET","/legacy-reports",null,"p8.other",null).json().get("items"))).isEmpty();
-        for(String table:List.of("reward_order","wallet_entry","traffic_report","budget_entry"))assertThat(count("SELECT COUNT(*) FROM "+table)).isZero();
-    }
-    @Test void legacyImportRejectsUnauthorizedTamperedAndConflictingArchivesAtomically()throws Exception{
-        var bundle=bundle(false);assertThat(api("POST","/migration/preview",bundle,"p8.owner",null).status()).isEqualTo(403);
-        var preview=api("POST","/migration/preview",bundle,"p8.manager",null);var bad=Map.of("bundle",bundle,"userMappings",Map.of("old-user",12101),"expectedSha256","0".repeat(64),"reason","Invalid hash");
-        assertThat(api("POST","/migration/import",bad,"p8.manager",null).status()).isEqualTo(409);
-        ok(api("POST","/migration/import",Map.of("bundle",bundle,"userMappings",Map.of("old-user",12101),"expectedSha256",preview.json().get("sourceSha256"),"reason","First confirmed batch"),"p8.manager",null));
-        var changed=bundle(true);var next=api("POST","/migration/preview",changed,"p8.manager",null);
-        assertThat(api("POST","/migration/import",Map.of("bundle",changed,"userMappings",Map.of("old-user",12101),"expectedSha256",next.json().get("sourceSha256"),"reason","Conflicting old record"),"p8.manager",null).status()).isEqualTo(409);
-        assertThat(count("SELECT COUNT(*) FROM legacy_import_batch")).isEqualTo(1);assertThat(count("SELECT COUNT(*) FROM legacy_report_archive")).isEqualTo(5);
-    }
     @Test void actualWeightsProtocolIsDeterministicAndRetainsThresholdDirection()throws Exception{
         byte[] image=png();var a=postImage("http://127.0.0.1:"+MODEL_PORT+"/api/v1/detect",image,null);var b=postImage("http://127.0.0.1:"+MODEL_PORT+"/api/v1/detect",image,null);
         assertThat(a.statusCode()).isEqualTo(200);assertThat(b.statusCode()).isEqualTo(200);var first=JSONObjectUtils.parse(a.body());var second=JSONObjectUtils.parse(b.body());
@@ -144,15 +124,15 @@ class EndToEndTest {
         assertThat(second.get("score")).isEqualTo(first.get("score"));assertThat(first.get("isAiGenerated")).isEqualTo(score>threshold);
         assertThat(first.get("modelVersion").toString()).startsWith("rptc-sha256-");
     }
-    @Test void archivalImportDoesNotReactivateADisabledMappedAccount()throws Exception{
-        jdbc.update("UPDATE identity_user SET enabled=FALSE WHERE id=12105");var bundle=bundle(false);
-        Reply preview=api("POST","/migration/preview",bundle,"p8.manager",null);ok(preview);
-        ok(api("POST","/migration/import",Map.of("bundle",bundle,"userMappings",Map.of("old-user",12105),"expectedSha256",preview.json().get("sourceSha256"),"reason","Preserve disabled legacy identity"),"p8.manager",null));
-        assertThat(count("SELECT COUNT(*) FROM identity_user WHERE id=12105 AND enabled=FALSE")).isEqualTo(1);
-        assertThat(count("SELECT COUNT(*) FROM wallet_entry")).isZero();assertThat(count("SELECT COUNT(*) FROM legacy_report_archive WHERE user_id=12105")).isEqualTo(5);
+
+    @Test void retiredMigrationAndArchiveEndpointsAreAbsentForAllRoles()throws Exception{
+        for(String user:List.of("p8.manager","p8.owner")){
+            assertThat(api("GET","/legacy-reports",null,user,null).status()).isEqualTo(404);
+            assertThat(api("POST","/migration/preview",Map.of(),user,null).status()).isEqualTo(404);
+            assertThat(api("POST","/migration/import",Map.of(),user,null).status()).isEqualTo(404);
+        }
     }
 
-    private Map<String,Object> bundle(boolean changed){var rows=new ArrayList<Map<String,Object>>();for(int state=0;state<5;state++)rows.add(Map.of("legacyId","old-report-"+state,"userLegacyId","old-user","status",state,"location","Original gate","description",changed?"Changed archive":"Original archive"));return Map.of("schemaVersion",1,"users",List.of(Map.of("legacyId","old-user","username","legacy.owner")),"reports",rows);}
     private long campaign()throws Exception{Reply created=api("POST","/campaigns",Map.of("title","End-to-end campaign","regionCode","NORTH","startsAt",Instant.now().minusSeconds(3600).toString(),"endsAt",Instant.now().plusSeconds(3600).toString(),"rewardAmount",3.50,"budgetAmount",100.00),"p8.manager",null);ok(created);long id=num(created.json().get("id"));ok(api("POST","/campaigns/"+id+"/publish",Map.of(),"p8.manager",null));return id;}
     private long upload(byte[] bytes)throws Exception{var response=postImage("http://127.0.0.1:"+port+"/api/v1/evidence",bytes,bearer("p8.owner"));assertThat(response.statusCode()).isEqualTo(200);return num(JSONObjectUtils.parse(response.body()).get("id"));}
     private HttpResponse<String> postImage(String url,byte[] bytes,String token)throws Exception{String boundary="p8-"+UUID.randomUUID();var body=new ByteArrayOutputStream();body.write(("--"+boundary+"\r\nContent-Disposition: form-data; name=\"image\"; filename=\"evidence.png\"\r\nContent-Type: image/png\r\n\r\n").getBytes(StandardCharsets.US_ASCII));body.write(bytes);body.write(("\r\n--"+boundary+"--\r\n").getBytes(StandardCharsets.US_ASCII));var request=HttpRequest.newBuilder(URI.create(url)).timeout(Duration.ofSeconds(20)).header("Content-Type","multipart/form-data; boundary="+boundary);if(token!=null)request.header("Authorization","Bearer "+token);return http.send(request.POST(HttpRequest.BodyPublishers.ofByteArray(body.toByteArray())).build(),HttpResponse.BodyHandlers.ofString());}

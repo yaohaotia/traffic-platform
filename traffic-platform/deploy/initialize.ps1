@@ -5,7 +5,10 @@ $environmentPath=Join-Path $deploymentRoot '.env'
 if(Test-Path -LiteralPath $environmentPath){throw 'Deployment environment already exists. Existing credentials and volumes will not be replaced.'}
 function New-TrafficSecret { return [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(24)).ToLowerInvariant() }
 $trafficEnvironment=[ordered]@{}
-foreach($name in @('MYSQL_ROOT_PASSWORD','TRAFFIC_DB_PASSWORD','TRAFFIC_REDIS_PASSWORD','TRAFFIC_RABBIT_PASSWORD','TRAFFIC_JWT_SECRET','TRAFFIC_JOB_ACCESS_TOKEN','TRAFFIC_JOB_ADMIN_PASSWORD')){$trafficEnvironment[$name]=New-TrafficSecret}
+foreach($name in @('MYSQL_ROOT_PASSWORD','TRAFFIC_DB_PASSWORD','TRAFFIC_REDIS_PASSWORD','TRAFFIC_RABBIT_PASSWORD','TRAFFIC_JWT_SECRET','TRAFFIC_JOB_ACCESS_TOKEN')){$trafficEnvironment[$name]=New-TrafficSecret}
+# XXL-JOB 3.4.2's browser login limits passwords to 20 characters. Fifteen
+# random bytes give a 20-character Base64url password with 120 bits of entropy.
+$trafficEnvironment['TRAFFIC_JOB_ADMIN_PASSWORD']=[Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(15)).Replace('+','-').Replace('/','_')
 $trafficEnvironment['JAVA_IMAGE']='eclipse-temurin:21-jre'
 $trafficEnvironment['NGINX_IMAGE']='nginx:stable-alpine'
 $trafficEnvironment['XXL_IMAGE']='xuxueli/xxl-job-admin:3.4.2'

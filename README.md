@@ -18,11 +18,11 @@
 | 目录 | 内容 |
 | --- | --- |
 | `traffic-platform` | 新版 Java 后端、Flyway 迁移、集成测试、Compose 与运维脚本 |
-| `SpringBoot-Vue（前端）` | 前端源码，新入口位于 `src/traffic`，使用 `build:traffic` 构建 |
+| `SpringBoot-Vue（前端）` | 前端源码，入口位于 `src/traffic`，使用 `build:traffic` 构建 |
 | `PatchCraft（算法）` | 模型服务、预处理与网络代码、已有 RPTC 权重及协议测试 |
 | `docs` | 分阶段计划、设计、接口迁移、演示手册与验收摘要 |
 
-此仓库包含新版运行所需源码。原后端属于本机历史工程，未合并到本仓库；历史数据迁移工具需要另行提供原配置与只读数据源。原前端页面保留为迁移参考，新版使用独立入口。
+本仓库包含平台独立运行所需源码、模型服务和部署配置。账号、角色、区域及业务数据由当前平台管理。
 
 ## Windows 首次启动
 
@@ -79,11 +79,12 @@ docker compose -f './deploy/compose.yml' --env-file './deploy/.env' up -d --wait
 
 ## 设计与验证
 
+- [项目介绍与面试说明](docs/项目介绍与面试说明.md)：项目背景、完整流程、口述介绍和技术追问。
 - [项目计划](docs/项目重构计划书.md)、[执行记录](docs/重构执行记录.md)、[架构决策](docs/架构决策记录.md)。
 - [演示操作手册](docs/演示操作手册.md)、[接口迁移清单](docs/接口迁移清单.md)、[后端运行说明](traffic-platform/README.md)。
-- 本机 P8 历史验收结果：138 项 Java、25 项 Python 协议测试、9 项真实浏览器检查通过，账务差异为 0；摘要见 [P8-final-summary.json](docs/test-reports/P8-final-summary.json)。这些是原验收环境的记录，新环境需重新运行验证。
+- 当前独立版本的回归结果见 [standalone-summary.json](docs/test-reports/standalone-summary.json)；分阶段历史结果保留在执行记录中。
 - `tools/build.ps1 -Goals verify` 运行当前完整 Java 测试；分阶段门禁脚本和部署/浏览器验收见后端文档。真实模型需要项目权重及固定解释器依赖。
 
-随机凭据、原业务数据库导出、上传证据、模型数据集、原始日志、浏览器截图、依赖目录及构建产物不纳入版本控制。保留结构化验收摘要供核对，原始运行记录仍在原本机工程。
+随机凭据、上传证据、模型数据集、原始日志、浏览器截图、依赖目录及构建产物不纳入版本控制。保留结构化验收摘要供核对，完整运行日志保存在本机工程。
 
 第三方代码与权重的归属说明见 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md)。

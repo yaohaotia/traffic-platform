@@ -1,10 +1,10 @@
 {
   "stage": "P8",
-  "recordedAt": "2026-11-04T17:17:27.5564949+08:00",
+  "recordedAt": "2026-11-11T22:46:29.1330784+08:00",
   "command": "tools/build.ps1 -Goals clean,verify",
   "totals": {
     "errors": 0,
-    "tests": 138,
+    "tests": 136,
     "failures": 0,
     "skipped": 0
   },

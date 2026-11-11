@@ -1,0 +1,25 @@
+{
+  "stage": "STANDALONE",
+  "status": "PASSED",
+  "recordedAt": "2026-11-11T22:48:54.4651889+08:00",
+  "javaTests": 136,
+  "pythonProtocolTests": 25,
+  "browserChecks": 10,
+  "browserPageErrors": 0,
+  "standalone": true,
+  "activeLedgerDrifts": 0,
+  "freshMaintenanceKinds": 5,
+  "readiness": "UP",
+  "restartRecovery": "PASSED",
+  "jarSha256": "10e83d676583a4fbafad62a81d1348e7c68b984d09316918728d8003aeed0906",
+  "frontendIndexSha256": "15de9fa6b8e57571f88097691a71122a16ddd49b3a2937ec82bf4340fa6c8119",
+  "modelVersion": "rptc-sha256-c1c9612cc47215d7c4cbdc5ddff52a4312519d697fd0830ce478f63f58e733fd",
+  "entry": "http://127.0.0.1:28090",
+  "removedFeatures": [
+    "legacy report panel",
+    "archive preview/import",
+    "legacy data export and account seeding"
+  ],
+  "retiredEndpointsReturn404": true,
+  "reviewerEvidenceNavigation": "PASSED"
+}

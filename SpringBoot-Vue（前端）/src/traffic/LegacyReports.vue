@@ -1,5 +1,0 @@
-<template><div class="panel"><h2>旧版历史档案</h2><p class="muted small">保留旧系统处理状态，不代表当前奖励已结算；如需参加新征集，请重新提交有效证据。</p><el-button @click="load">刷新档案</el-button><el-table :data="rows"><el-table-column prop="legacy_id" label="旧编号" /><el-table-column prop="location" label="地点" /><el-table-column label="历史状态"><template slot-scope="s">{{ names[s.row.mapped_state] || s.row.mapped_state }}</template></el-table-column><el-table-column prop="description" label="说明" /></el-table><div class="pagination"><el-button :disabled="page === 1" @click="page--;load()">上一页</el-button><el-button :disabled="rows.length < 20" @click="page++;load()">下一页</el-button></div></div></template>
-<script>
-import { api, message } from './client'
-export default { data() { return { rows: [], page: 1, names: { LEGACY_PENDING_DETECTION: '旧版待检测', LEGACY_RECHECK_REQUIRED: '旧版风险记录，待人工确认', LEGACY_PENDING_REVIEW: '旧版待审核', LEGACY_APPROVED_NO_SETTLEMENT: '旧版通过，未迁入结算', LEGACY_REJECTED: '旧版驳回' } } }, created() { this.load() }, methods: { async load() { try { this.rows = (await api.get('/legacy-reports', { page: this.page })).items } catch (e) { this.$message.error(message(e)) } } } }
-</script>
